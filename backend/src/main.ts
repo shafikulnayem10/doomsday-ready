@@ -15,7 +15,15 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new AllExceptionsFilter());
-  app.enableCors(); 
+
+  // Production: set FRONTEND_URL (comma-separated, no trailing slash).
+  // If it is not set, any origin is allowed (local development).
+  const frontendUrls = process.env.FRONTEND_URL?.split(',')
+    .map((url) => url.trim())
+    .filter(Boolean);
+  app.enableCors({
+    origin: frontendUrls && frontendUrls.length > 0 ? frontendUrls : true,
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }
