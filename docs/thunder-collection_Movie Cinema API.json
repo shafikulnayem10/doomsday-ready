@@ -1,0 +1,894 @@
+{
+    "clientName": "Thunder Client",
+    "collectionName": "Movie Cinema API",
+    "collectionId": "bb00895e-cced-40c4-9998-a876abf0f428",
+    "dateExported": "2026-11-20T08:53:32.517Z",
+    "version": "1.4",
+    "folders": [
+        {
+            "_id": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Movies",
+            "containerId": "",
+            "created": "2026-11-20T08:10:00.981Z",
+            "sortNum": 10000
+        },
+        {
+            "_id": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Cinemas",
+            "containerId": "",
+            "created": "2026-11-20T08:10:15.394Z",
+            "sortNum": 20000
+        }
+    ],
+    "requests": [
+        {
+            "_id": "2ad8c8f3-782e-4909-a1b3-373fa7b60517",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Create Movie",
+            "url": "{{baseUrl}}/movies",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2026-11-20T08:13:48.224Z",
+            "modified": "2026-11-20T08:13:48.225Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"title\": \"Iron Man\",",
+                    "  \"releaseYear\": 2008,",
+                    "  \"runtimeMinutes\": 126",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "545c668c-113d-45e8-abf9-d6bf2048f8ec",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Request 2 — Create Captain America",
+            "url": "{{baseUrl}}/movies",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2026-11-20T08:17:08.010Z",
+            "modified": "2026-11-20T08:17:08.011Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"title\": \"Captain America: The First Avenger\",",
+                    "  \"releaseYear\": 2011,",
+                    "  \"runtimeMinutes\": 124",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "c64255cf-0bdc-4ea4-9f48-14a65ed33760",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Request 3 — Create The Avengers",
+            "url": "{{baseUrl}}/movies",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2026-11-20T08:19:56.910Z",
+            "modified": "2026-11-20T08:19:56.910Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"title\": \"The Avengers\",",
+                    "  \"releaseYear\": 2012,",
+                    "  \"runtimeMinutes\": 143,",
+                    "  \"prerequisiteIds\": [1, 2]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "9670d79c-c0bb-422e-9b7c-1ba052bbf155",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Request 4 — Create Civil War",
+            "url": "{{baseUrl}}/movies",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2026-11-20T08:20:58.288Z",
+            "modified": "2026-11-20T08:20:58.288Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"title\": \"Captain America: Civil War\",",
+                    "  \"releaseYear\": 2016,",
+                    "  \"runtimeMinutes\": 147,",
+                    "  \"prerequisiteIds\": [3]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "59110d69-39fc-4468-9484-6d8822eb6bcd",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Request 5 — Create Thor Ragnarok",
+            "url": "{{baseUrl}}/movies",
+            "method": "POST",
+            "sortNum": 50000,
+            "created": "2026-11-20T08:21:57.430Z",
+            "modified": "2026-11-20T08:21:57.430Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"title\": \"Thor: Ragnarok\",",
+                    "  \"releaseYear\": 2017,",
+                    "  \"runtimeMinutes\": 130",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "de9699c3-12de-4a32-a9fc-9be7ca798599",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Request 6 — Create Infinity War",
+            "url": "{{baseUrl}}/movies",
+            "method": "POST",
+            "sortNum": 60000,
+            "created": "2026-11-20T08:22:50.382Z",
+            "modified": "2026-11-20T08:22:50.382Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"title\": \"Avengers: Infinity War\",",
+                    "  \"releaseYear\": 2018,",
+                    "  \"runtimeMinutes\": 149,",
+                    "  \"prerequisiteIds\": [4, 5]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "f8b71221-2a41-4a8c-b2a2-13efc8e7c6f3",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Request 7 — Create Endgame",
+            "url": "{{baseUrl}}/movies",
+            "method": "POST",
+            "sortNum": 80000,
+            "created": "2026-11-20T08:23:45.959Z",
+            "modified": "2026-11-20T08:23:45.959Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"title\": \"Avengers: Endgame\",",
+                    "  \"releaseYear\": 2019,",
+                    "  \"runtimeMinutes\": 181,",
+                    "  \"prerequisiteIds\": [6]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "6afe3f05-7cdd-4f0a-b5a5-96eea21a07f0",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Request 8 — Create Doomsday",
+            "url": "{{baseUrl}}/movies",
+            "method": "POST",
+            "sortNum": 90000,
+            "created": "2026-11-20T08:25:02.900Z",
+            "modified": "2026-11-20T08:25:02.900Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"title\": \"Avengers: Doomsday\",",
+                    "  \"releaseYear\": 2026,",
+                    "  \"runtimeMinutes\": 150,",
+                    "  \"prerequisiteIds\": [7]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "09d96617-6b0e-46f2-b35a-0813a3fcc581",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Get All Movies",
+            "url": "{{baseUrl}}/movies",
+            "method": "GET",
+            "sortNum": 100000,
+            "created": "2026-11-20T08:27:25.303Z",
+            "modified": "2026-11-20T08:27:25.303Z",
+            "headers": []
+        },
+        {
+            "_id": "15541310-dfed-452b-b09e-3580f7c3f6de",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Get Doomsday Rewatch Order",
+            "url": "{{baseUrl}}/movies/8/rewatch-order",
+            "method": "GET",
+            "sortNum": 110000,
+            "created": "2026-11-20T08:28:16.684Z",
+            "modified": "2026-11-20T08:28:16.684Z",
+            "headers": []
+        },
+        {
+            "_id": "c8869e65-c63d-4b5b-a271-8cd2f242a842",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Get Thor Rewatch Order",
+            "url": "{{baseUrl}}/movies/5/rewatch-order",
+            "method": "GET",
+            "sortNum": 120000,
+            "created": "2026-11-20T08:28:58.547Z",
+            "modified": "2026-11-20T08:28:58.548Z",
+            "headers": []
+        },
+        {
+            "_id": "8d481d35-7b7b-4588-8b62-f477b5988783",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Test Circular Dependency",
+            "url": "{{baseUrl}}/movies/1",
+            "method": "PATCH",
+            "sortNum": 130000,
+            "created": "2026-11-20T08:30:52.346Z",
+            "modified": "2026-11-20T08:30:52.346Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"prerequisiteIds\": [8]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "977544ba-c20f-425e-ab68-b20a504fab6c",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Test Self Dependency",
+            "url": "{{baseUrl}}/movies/1",
+            "method": "PATCH",
+            "sortNum": 140000,
+            "created": "2026-11-20T08:32:24.706Z",
+            "modified": "2026-11-20T08:32:24.707Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"prerequisiteIds\": [1]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "3f2f6c79-508f-4aee-8fe2-4e454cc2977b",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Update Iron Man Watched",
+            "url": "{{baseUrl}}/movies/1",
+            "method": "PATCH",
+            "sortNum": 150000,
+            "created": "2026-11-20T08:33:23.507Z",
+            "modified": "2026-11-20T08:33:23.507Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"watched\": true",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "cb3b5a00-4503-40df-895c-9c0cb93d70ca",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Test Duplicate Movie",
+            "url": "{{baseUrl}}/movies",
+            "method": "POST",
+            "sortNum": 160000,
+            "created": "2026-11-20T08:35:15.756Z",
+            "modified": "2026-11-20T08:35:15.756Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"title\": \"Iron Man\",",
+                    "  \"releaseYear\": 2008,",
+                    "  \"runtimeMinutes\": 126",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "dcf0958b-14b1-4825-ad83-3615c251607d",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Test Invalid Runtime",
+            "url": "{{baseUrl}}/movies",
+            "method": "POST",
+            "sortNum": 170000,
+            "created": "2026-11-20T08:36:00.439Z",
+            "modified": "2026-11-20T08:36:00.439Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"title\": \"Invalid Movie\",",
+                    "  \"releaseYear\": 2025,",
+                    "  \"runtimeMinutes\": 301",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "d374f2cd-d605-4487-aaa9-d42f3882888c",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Test Invalid Prerequisite ID",
+            "url": "{{baseUrl}}/movies",
+            "method": "POST",
+            "sortNum": 180000,
+            "created": "2026-11-20T08:37:01.657Z",
+            "modified": "2026-11-20T08:37:01.657Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"title\": \"Invalid Prerequisite Movie\",",
+                    "  \"releaseYear\": 2025,",
+                    "  \"runtimeMinutes\": 120,",
+                    "  \"prerequisiteIds\": [999]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "c0aa63e1-037a-4889-9b0e-d1e40777a8a7",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "a34741ac-c83b-4ab2-99bc-0f0d14eb584b",
+            "name": "Test Movie Not Found",
+            "url": "{{baseUrl}}/movies/999/rewatch-order",
+            "method": "GET",
+            "sortNum": 190000,
+            "created": "2026-11-20T08:38:02.036Z",
+            "modified": "2026-11-20T08:38:02.037Z",
+            "headers": []
+        },
+        {
+            "_id": "d5657167-8e76-41eb-8bcd-da34226df705",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Create Cinema A",
+            "url": "{{baseUrl}}/cinemas",
+            "method": "POST",
+            "sortNum": 200000,
+            "created": "2026-11-20T08:41:37.247Z",
+            "modified": "2026-11-20T08:41:37.247Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"name\": \"Cinema A\",",
+                    "  \"bundleSizes\": [1, 3, 4]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "058d5a04-cfe0-4308-b725-d154645c954c",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Create Cinema B",
+            "url": "{{baseUrl}}/cinemas",
+            "method": "POST",
+            "sortNum": 210000,
+            "created": "2026-11-20T08:43:00.585Z",
+            "modified": "2026-11-20T08:43:00.585Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"name\": \"Cinema B\",",
+                    "  \"bundleSizes\": [2, 5]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "b5ce497c-5603-4370-b40d-c5368f7c9e7b",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Create Cinema C",
+            "url": "{{baseUrl}}/cinemas",
+            "method": "POST",
+            "sortNum": 220000,
+            "created": "2026-11-20T08:44:27.599Z",
+            "modified": "2026-11-20T08:44:27.600Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"name\": \"Cinema C\",",
+                    "  \"bundleSizes\": [6, 9, 20]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "917ba98d-fe26-4c95-9aa2-26f88ee7aed3",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Create Cinema D",
+            "url": "{{baseUrl}}/cinemas",
+            "method": "POST",
+            "sortNum": 230000,
+            "created": "2026-11-20T08:45:01.206Z",
+            "modified": "2026-11-20T08:45:01.206Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"name\": \"Cinema D\",",
+                    "  \"bundleSizes\": [4, 6]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "095b7c80-9eb9-48c3-b81b-57e9e3401f08",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Get All Cinemas",
+            "url": "{{baseUrl}}/cinemas",
+            "method": "GET",
+            "sortNum": 240000,
+            "created": "2026-11-20T08:45:36.667Z",
+            "modified": "2026-11-20T08:45:36.667Z",
+            "headers": []
+        },
+        {
+            "_id": "8ae9d251-4c99-465e-a1f1-b7b7f1056c84",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Cinema A Booking",
+            "url": "{{baseUrl}}/cinemas/1/booking?groupSize=6",
+            "method": "GET",
+            "sortNum": 250000,
+            "created": "2026-11-20T08:46:06.738Z",
+            "modified": "2026-11-20T08:46:06.738Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "groupSize",
+                    "value": "6",
+                    "isPath": false
+                }
+            ]
+        },
+        {
+            "_id": "441dc8f2-cb80-44b6-9692-de437279c548",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Cinema B Booking",
+            "url": "{{baseUrl}}/cinemas/2/booking?groupSize=11",
+            "method": "GET",
+            "sortNum": 260000,
+            "created": "2026-11-20T08:47:17.794Z",
+            "modified": "2026-11-20T08:47:17.794Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "groupSize",
+                    "value": "11",
+                    "isPath": false
+                }
+            ]
+        },
+        {
+            "_id": "90df045e-406c-4b5b-9356-ceb83dc92e03",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Cinema C Booking",
+            "url": "{{baseUrl}}/cinemas/3/booking?groupSize=44",
+            "method": "GET",
+            "sortNum": 270000,
+            "created": "2026-11-20T08:48:01.077Z",
+            "modified": "2026-11-20T08:48:01.077Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "groupSize",
+                    "value": "44",
+                    "isPath": false
+                }
+            ]
+        },
+        {
+            "_id": "7b8308cf-0fde-4a45-817c-6e7852bfbf0c",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Cinema D Impossible Booking",
+            "url": "{{baseUrl}}/cinemas/4/booking?groupSize=7",
+            "method": "GET",
+            "sortNum": 280000,
+            "created": "2026-11-20T08:48:31.171Z",
+            "modified": "2026-11-20T08:48:31.171Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "groupSize",
+                    "value": "7",
+                    "isPath": false
+                }
+            ]
+        },
+        {
+            "_id": "8f23b447-22c6-45ee-9f43-7d6f6db0a927",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Invalid Group Size Zero",
+            "url": "{{baseUrl}}/cinemas/1/booking?groupSize=0",
+            "method": "GET",
+            "sortNum": 290000,
+            "created": "2026-11-20T08:49:28.181Z",
+            "modified": "2026-11-20T08:49:28.181Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "groupSize",
+                    "value": "0",
+                    "isPath": false
+                }
+            ]
+        },
+        {
+            "_id": "8dcd42d5-31de-4a45-8896-f87d5c4df3f8",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Invalid Group Size Above Limit",
+            "url": "{{baseUrl}}/cinemas/1/booking?groupSize=10001",
+            "method": "GET",
+            "sortNum": 300000,
+            "created": "2026-11-20T08:49:57.131Z",
+            "modified": "2026-11-20T08:49:57.131Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "groupSize",
+                    "value": "10001",
+                    "isPath": false
+                }
+            ]
+        },
+        {
+            "_id": "88f74461-b921-40bc-ae3e-649fc78e80d6",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Test Duplicate Bundle Sizes",
+            "url": "{{baseUrl}}/cinemas",
+            "method": "POST",
+            "sortNum": 310000,
+            "created": "2026-11-20T08:50:18.856Z",
+            "modified": "2026-11-20T08:50:18.856Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                },
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"name\": \"Cinema Invalid\",",
+                    "  \"bundleSizes\": [2, 2]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "a094fdf0-92ee-4dbc-8fc5-caf9e80f752e",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Duplicate Cinema Name",
+            "url": "{{baseUrl}}/cinemas",
+            "method": "POST",
+            "sortNum": 320000,
+            "created": "2026-11-20T08:51:05.008Z",
+            "modified": "2026-11-20T08:51:05.009Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{",
+                    "  \"name\": \"Cinema A\",",
+                    "  \"bundleSizes\": [2, 5]",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "e57f0071-f421-4b97-82ec-1bd1a8bd40bd",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Test Cinema Not Found",
+            "url": "{{baseUrl}}/cinemas/999/booking?groupSize=6",
+            "method": "GET",
+            "sortNum": 330000,
+            "created": "2026-11-20T08:51:51.724Z",
+            "modified": "2026-11-20T08:51:51.724Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "groupSize",
+                    "value": "6",
+                    "isPath": false
+                }
+            ]
+        },
+        {
+            "_id": "8a83867b-ba6e-4d7a-9fbf-32ae01c00a31",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Single Bundle Booking",
+            "url": "{{baseUrl}}/cinemas/1/booking?groupSize=4",
+            "method": "GET",
+            "sortNum": 340000,
+            "created": "2026-11-20T08:52:16.741Z",
+            "modified": "2026-11-20T08:52:16.741Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "groupSize",
+                    "value": "4",
+                    "isPath": false
+                }
+            ]
+        },
+        {
+            "_id": "23164866-4e6f-4bd6-880b-91dec5689b72",
+            "colId": "bb00895e-cced-40c4-9998-a876abf0f428",
+            "containerId": "7e197c41-0e3a-454d-aad0-0db0160530e4",
+            "name": "Exact Multiple Bundle Booking",
+            "url": "{{baseUrl}}/cinemas/2/booking?groupSize=10",
+            "method": "GET",
+            "sortNum": 350000,
+            "created": "2026-11-20T08:52:52.560Z",
+            "modified": "2026-11-20T08:52:52.560Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "groupSize",
+                    "value": "10",
+                    "isPath": false
+                }
+            ]
+        }
+    ],
+    "ref": "q7jaq_WS2F3BNlwjagd_xqrUK2ubUX6XsYiUtRRRzQa8ynTB0EnNE9EOjoB520P1IWs3Cmb9cmeGjkJPEzds0g"
+}
