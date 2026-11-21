@@ -1,121 +1,199 @@
+
 # Doomsday Ready
 
-A small full-stack app that helps MCU fans plan their rewatch before *Avengers: Doomsday* and book an opening-night watch party.
+A full-stack web application that helps Marvel Cinematic Universe (MCU) fans plan their rewatch before *Avengers: Doomsday* and calculate opening-night watch-party ticket bundles.
 
 Built for the **Blinto Talent Accelerator 2027 – Full Stack Developer Internship Assessment**.
 
-| | |
+| Resource | Link |
 |---|---|
 | Live frontend | https://doomsday-ready-theta.vercel.app |
 | Live backend (API base URL) | https://doomsday-ready-api.onrender.com/api |
 | GitHub repository | https://github.com/shafikulnayem10/doomsday-ready |
 
-> **Note on cold starts:** the backend runs on Render's free tier and sleeps after about 15 minutes without traffic. The first request after a pause can take around a minute. The database (Neon free tier) also suspends when idle and wakes up on the next query. If the frontend shows "Loading..." for a while on first visit, please wait or open the API URL once to wake it up.
+> **Note on cold starts:** The backend runs on Render's free tier and may spin down after 15 minutes of inactivity. The first request after a pause can take around a minute while the service starts. Neon may also suspend its database compute when idle, causing additional latency on the first database query. If the frontend shows "Loading..." during the first visit, please wait for the services to wake up or open the API URL once.
 
 ---
 
-## Table of contents
+## Table of Contents
 
 1. [Features](#features)
-2. [Tech stack](#tech-stack)
-3. [Architecture overview](#architecture-overview)
-4. [Folder structure](#folder-structure)
-5. [Data model (ER diagram)](#data-model-er-diagram)
-6. [Local setup](#local-setup)
-7. [Environment variables](#environment-variables)
-8. [API documentation](#api-documentation)
+2. [Tech Stack](#tech-stack)
+3. [Architecture Overview](#architecture-overview)
+4. [Folder Structure](#folder-structure)
+5. [Data Model (ER Diagram)](#data-model-er-diagram)
+6. [Local Setup](#local-setup)
+7. [Environment Variables](#environment-variables)
+8. [API Documentation](#api-documentation)
 9. [Testing with Thunder Client](#testing-with-thunder-client)
-10. [Algorithms and design decisions](#algorithms-and-design-decisions)
-11. [Assumptions and limitations](#assumptions-and-limitations)
-12. [Problems faced and how they were solved](#problems-faced-and-how-they-were-solved)
+10. [Algorithms and Design Decisions](#algorithms-and-design-decisions)
+11. [Assumptions and Limitations](#assumptions-and-limitations)
+12. [Problems Faced and Solutions](#problems-faced-and-solutions)
 13. [Deployment](#deployment)
 14. [Screenshots](#screenshots)
-15. [AI usage disclosure](#ai-usage-disclosure)
+15. [AI Usage Disclosure](#ai-usage-disclosure)
 
 ---
 
 ## Features
 
-**Movies and rewatch order**
-- Create movies with a unique title, release year, runtime (1–300 minutes), optional prerequisites and a watched flag (default `false`).
+### Movies and Rewatch Order
+
+- Create movies with a unique title, release year, runtime (1–300 minutes), optional prerequisites, and a watched flag (default: `false`).
 - Update any movie field, including watched status and prerequisites.
-- Circular dependencies (direct or indirect) are rejected with `409 CIRCULAR_DEPENDENCY`; nothing is saved when this happens.
-- Rewatch order for a target movie: every transitive prerequisite exactly once, prerequisites before the movies that depend on them, target excluded. The response also contains the number of watched prerequisites and the total runtime of the unwatched ones.
+- Circular dependencies (direct or indirect) are rejected with `409 CIRCULAR_DEPENDENCY`. No changes are saved when this happens.
+- Generate a rewatch order for a target movie, including every transitive prerequisite exactly once.
+- Prerequisite movies always appear before the movies that depend on them.
+- The target movie is excluded from the final rewatch list.
+- The response includes the number of watched prerequisites and the total remaining runtime of unwatched prerequisites.
 
-**Cinemas and watch-party booking**
-- Create cinemas with a unique name and 1–10 distinct bundle sizes (each 1–500 seats).
-- Booking quote: the fewest bundles that add up to *exactly* the group size (1–10,000), with the quantity of each bundle size, or a clear "Not Possible" result.
+### Cinemas and Watch-Party Booking
 
-**Frontend (three views)**
-- **Movies:** list, add, edit (including prerequisites), mark watched or unwatched.
-- **Rewatch Plan:** pick a target movie and see the ordered list with watched ticks, a progress bar ("4 of 7 watched") and the remaining watch time.
-- **Booking:** pick a cinema, enter a group size and see the bundles to buy or "Not possible".
+- Create cinemas with a unique name and 1–10 distinct bundle sizes (each containing 1–500 seats).
+- Calculate the minimum number of bundles required to accommodate a group.
+- The booking system supports group sizes from 1 to 10,000.
+- Returns the quantity of each bundle size needed to reach the exact group size.
+- Returns a clear `"Not Possible"` result when no exact combination exists.
 
-## Tech stack
+### Frontend (Three Main Views)
+
+**Movies**
+- View the movie list.
+- Add and edit movies.
+- Manage prerequisite relationships.
+- Mark movies as watched or unwatched.
+
+**Rewatch Plan**
+- Select a target movie.
+- View the ordered prerequisite list.
+- Track watched movies with a progress bar (e.g., "4 of 7 watched").
+- See the remaining watch time.
+
+**Booking**
+- Select a cinema.
+- Enter a group size.
+- View the minimum bundle combination required.
+- See a "Not possible" result when an exact combination cannot be found.
+
+---
+
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Backend | NestJS, TypeScript (ESM), REST API |
 | Database | PostgreSQL, TypeORM |
-| Validation | class-validator, class-transformer, `@nestjs/config` |
+| Validation | class-validator, class-transformer, @nestjs/config |
 | Frontend | Next.js (App Router), React, TypeScript, Tailwind CSS |
-| API testing | Thunder Client (VS Code), manual |
-| Hosting | Render (backend), Neon (PostgreSQL), Vercel (frontend) |
+| API Testing | Thunder Client (VS Code Extension), Manual Testing |
+| Backend Hosting | Render |
+| Database Hosting | Neon |
+| Frontend Hosting | Vercel |
 
-## Architecture overview
+---
 
+## Architecture Overview
+
+The application follows a layered backend architecture with a separate frontend and database.
+
+```mermaid
+flowchart TB
+    A["Browser / User"]
+    B["Next.js Frontend<br/>Vercel"]
+    C["NestJS REST API<br/>Render"]
+    D["PostgreSQL Database<br/>Neon"]
+    E["Controllers"]
+    F["Services"]
+    G["TypeORM Repositories"]
+    H["Pure Algorithm Functions"]
+
+    A --> B
+    B -->|"HTTPS / JSON"| C
+    C --> E
+    E --> F
+    F --> G
+    G --> D
+    F --> H
 ```
-Browser (Next.js on Vercel)
-        |  HTTPS, JSON
-        v
-NestJS REST API (Render)  --->  PostgreSQL (Neon)
-  Controller -> Service -> TypeORM repository
-                   |
-                   +-> pure algorithm functions (no database, no libraries)
-```
 
-- **Controllers** only handle HTTP (routes, params, DTOs).
-- **Services** hold the business logic and talk to the database through TypeORM repositories.
-- **Algorithms** live in plain TypeScript functions (`prerequisite-graph.ts`, `min-bundles.ts`) that take data in and return results, so they are easy to read and test without a database.
-- A global exception filter turns every error into the same JSON shape (see [API documentation](#api-documentation)).
-- A global `ValidationPipe` validates every request body and query using DTO classes.
+### Architecture Responsibilities
 
-## Folder structure
+- **Controllers:** Handle HTTP requests, routes, parameters, and DTOs.
+- **Services:** Contain business logic and communicate with the database through TypeORM repositories.
+- **Repositories:** Handle database operations through TypeORM.
+- **Algorithms:** Implemented as independent TypeScript functions (`prerequisite-graph.ts` and `min-bundles.ts`). They receive data as input and return calculated results without directly accessing the database.
+- **Global Exception Filter:** Converts application errors into a consistent JSON response format.
+- **Global ValidationPipe:** Validates incoming request bodies and query parameters using DTO classes.
 
-```
+This separation keeps business logic independent of HTTP handling and database operations.
+
+---
+
+## Folder Structure
+
+```text
 doomsday-ready/
+│
 ├── backend/
 │   ├── .env.example
 │   └── src/
-│       ├── main.ts                      # global prefix /api, validation, filter, CORS
+│       ├── main.ts
 │       ├── app.module.ts
-│       ├── common/filters/all-exceptions.filter.ts
-│       ├── database/database.module.ts  # TypeORM connection from environment variables
-│       ├── migrations/                  # schema migration used in production
+│       │
+│       ├── common/
+│       │   └── filters/
+│       │       └── all-exceptions.filter.ts
+│       │
+│       ├── database/
+│       │   └── database.module.ts
+│       │
+│       ├── migrations/
+│       │
 │       ├── movies/
-│       │   ├── entities/movie.entity.ts
-│       │   ├── dto/                     # create / update DTOs
-│       │   ├── algorithms/prerequisite-graph.ts   # rewatch order + cycle detection
+│       │   ├── entities/
+│       │   │   └── movie.entity.ts
+│       │   ├── dto/
+│       │   ├── algorithms/
+│       │   │   └── prerequisite-graph.ts
 │       │   ├── movies.service.ts
 │       │   ├── movies.controller.ts
 │       │   └── movies.module.ts
+│       │
 │       └── cinemas/
-│           ├── entities/                # cinema.entity.ts, cinema-bundle.entity.ts
-│           ├── dto/                     # create cinema, booking query
-│           ├── algorithms/min-bundles.ts          # minimum-bundle dynamic programming
+│           ├── entities/
+│           │   ├── cinema.entity.ts
+│           │   └── cinema-bundle.entity.ts
+│           ├── dto/
+│           ├── algorithms/
+│           │   └── min-bundles.ts
 │           ├── cinemas.service.ts
 │           ├── cinemas.controller.ts
 │           └── cinemas.module.ts
+│
 ├── frontend/
 │   ├── .env.example
 │   └── src/
-│       ├── app/                         # layout, /movies, /rewatch, /booking pages
-│       ├── components/Nav.tsx
-│       └── lib/                         # api.ts (API client + types), format.ts
+│       ├── app/
+│       │   ├── layout.tsx
+│       │   ├── movies/
+│       │   ├── rewatch/
+│       │   └── booking/
+│       │
+│       ├── components/
+│       │   └── Nav.tsx
+│       │
+│       └── lib/
+│           ├── api.ts
+│           └── format.ts
+│
 └── README.md
 ```
 
-## Data model (ER diagram)
+---
+
+## Data Model (ER Diagram)
+
+The application uses four main database tables to manage movies, prerequisite relationships, cinemas, and cinema ticket bundles.
 
 ```mermaid
 erDiagram
@@ -126,135 +204,308 @@ erDiagram
         int runtime_minutes "CHECK 1..300"
         boolean watched "default false"
     }
+
     MOVIE_PREREQUISITES {
-        int movie_id PK, FK "the movie"
-        int prerequisite_id PK, FK "must be watched first"
+        int movie_id PK, FK
+        int prerequisite_id PK, FK
     }
+
     CINEMAS {
         int id PK
         varchar name UK "unique, max 150"
     }
+
     CINEMA_BUNDLES {
         int id PK
         int cinema_id FK
         int size "CHECK 1..500"
     }
 
-    MOVIES ||--o{ MOVIE_PREREQUISITES : "has prerequisites (movie_id)"
-    MOVIES ||--o{ MOVIE_PREREQUISITES : "is a prerequisite of (prerequisite_id)"
-    CINEMAS ||--|{ CINEMA_BUNDLES : sells
+    MOVIES ||--o{ MOVIE_PREREQUISITES : "has prerequisites"
+    MOVIES ||--o{ MOVIE_PREREQUISITES : "is a prerequisite of"
+    CINEMAS ||--|{ CINEMA_BUNDLES : "sells"
 ```
 
-Key constraints, enforced in the database as well as in the application:
+### Database Constraints
+
+The following constraints are enforced at the database level as well as in the application:
+
 - `movies.title` and `cinemas.name` are unique.
-- `movies.runtime_minutes` must be between 1 and 300; `cinema_bundles.size` between 1 and 500.
-- `movie_prerequisites` has a composite primary key `(movie_id, prerequisite_id)` so the same prerequisite cannot be stored twice, and a `CHECK (movie_id <> prerequisite_id)` that blocks a direct self-dependency (created by the production migration, see [Local setup](#local-setup)). This check is only a second line of defence; circular dependencies of any length are detected by the DFS algorithm before saving.
-- `cinema_bundles` has `UNIQUE (cinema_id, size)`, so one cinema cannot have the same bundle size twice.
+- `movies.runtime_minutes` must be between 1 and 300.
+- `cinema_bundles.size` must be between 1 and 500.
+- `movie_prerequisites` uses a composite primary key (`movie_id`, `prerequisite_id`) to prevent duplicate prerequisite relationships.
+- A `CHECK (movie_id <> prerequisite_id)` constraint prevents a movie from being its own prerequisite. This constraint is created through the production migration.
+- `cinema_bundles` has a `UNIQUE (cinema_id, size)` constraint to prevent duplicate bundle sizes within the same cinema.
 
-## Local setup
+The database constraint for direct self-dependency is a second line of defence. The application also performs DFS-based cycle detection to prevent both direct and indirect circular dependencies before saving changes.
 
-**Prerequisites:** Node.js (developed with v26; v24 is used on Render), npm, PostgreSQL, Git. pgAdmin 4 is handy for inspecting the database.
+---
 
-### 1. Clone and create the database
+## Local Setup
+
+### Prerequisites
+
+Make sure the following tools are installed:
+
+- Node.js (developed with v26; v24 is used on Render).
+- npm.
+- PostgreSQL.
+- Git.
+- pgAdmin 4 (recommended for database management).
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/shafikulnayem10/doomsday-ready.git
+
 cd doomsday-ready
 ```
 
-Create an empty PostgreSQL database named `doomsday_ready` (for example in pgAdmin 4).
+### 2. Create the Database
 
-### 2. Backend
+Create an empty PostgreSQL database named:
+
+```text
+doomsday_ready
+```
+
+You can create the database using pgAdmin 4.
+
+### 3. Backend Setup
+
+Navigate to the backend directory:
 
 ```bash
 cd backend
-cp .env.example .env        # on Windows: copy .env.example .env
-# edit .env and set DB_PASSWORD to your PostgreSQL password
-npm install
-npm run start:dev           # http://localhost:3000/api
 ```
 
-With `DB_SYNCHRONIZE=true` (local development only) TypeORM creates the tables from the entities automatically.
+Create the environment file:
 
-> The `CHECK (movie_id <> prerequisite_id)` on the `movie_prerequisites` join table cannot be declared with a TypeORM decorator, so it is created by the production migration only. For local development you can add it once with:
->
-> ```sql
-> ALTER TABLE movie_prerequisites
-> ADD CONSTRAINT no_self_prerequisite CHECK (movie_id <> prerequisite_id);
-> ```
->
-> The application rejects self-dependencies in any case (see [Algorithms](#algorithms-and-design-decisions)).
+**Windows (PowerShell):**
 
-### 3. Frontend
+```powershell
+copy .env.example .env
+```
+
+**Linux / macOS:**
+
+```bash
+cp .env.example .env
+```
+
+Update the `.env` file with your local PostgreSQL credentials, especially `DB_PASSWORD`.
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run start:dev
+```
+
+The backend API will be available at:
+
+```text
+http://localhost:3000/api
+```
+
+With `DB_SYNCHRONIZE=true` (local development only), TypeORM automatically creates the database tables from the entity definitions.
+
+### 4. Frontend Setup
+
+Open another terminal and navigate to the frontend directory:
 
 ```bash
 cd frontend
-cp .env.example .env.local  # NEXT_PUBLIC_API_URL=http://localhost:3000/api
-npm install
-npm run dev -- -p 3001      # http://localhost:3001
 ```
 
-### Schema management
+Create the environment file:
 
-- **Local development:** `synchronize: true` (fast, builds the schema from the entities).
-- **Production:** `synchronize` is **off**. The schema is created by a hand-written TypeORM migration (`backend/src/migrations`), which runs automatically at startup when `DB_MIGRATIONS_RUN=true`. This keeps the production schema under version control and avoids accidental schema changes. For future schema changes, add a new migration instead of editing the existing one.
+**Windows (PowerShell):**
 
-## Environment variables
+```powershell
+copy .env.example .env.local
+```
+
+**Linux / macOS:**
+
+```bash
+cp .env.example .env.local
+```
+
+Set the API URL in `.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the frontend:
+
+```bash
+npm run dev -- -p 3001
+```
+
+The frontend will be available at:
+
+```text
+http://localhost:3001
+```
+
+### 5. Schema Management
+
+The application uses different schema management approaches for development and production.
+
+**Local Development**
+
+```env
+DB_SYNCHRONIZE=true
+```
+
+TypeORM automatically creates and updates the schema based on the entity definitions.
+
+**Production**
+
+```env
+DB_SYNCHRONIZE=false
+DB_MIGRATIONS_RUN=true
+```
+
+The production schema is created and managed through a hand-written TypeORM migration located in `backend/src/migrations`.
+
+The migration runs automatically at application startup when `DB_MIGRATIONS_RUN=true`.
+
+Using migrations in production keeps the database schema under version control and avoids unexpected schema changes.
+
+For future schema changes, create a new migration instead of modifying an already executed migration.
+
+### Additional Database Constraint
+
+The `CHECK (movie_id <> prerequisite_id)` constraint on the `movie_prerequisites` join table cannot be declared through a standard TypeORM decorator.
+
+For local development, you can add it manually once:
+
+```sql
+ALTER TABLE movie_prerequisites
+ADD CONSTRAINT no_self_prerequisite
+CHECK (movie_id <> prerequisite_id);
+```
+
+The application also rejects self-dependencies through its validation and cycle-detection logic.
+
+---
+
+## Environment Variables
 
 ### Backend (`backend/.env`)
 
 | Variable | Description |
 |---|---|
-| `PORT` | Server port (default `3000`; set automatically by Render) |
-| `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME` | Local PostgreSQL connection |
-| `DATABASE_URL` | Single connection URL for hosted databases (overrides the `DB_*` variables) |
-| `DB_SSL` | `true` for hosted databases that require SSL (Neon) |
-| `DB_SYNCHRONIZE` | `true` for local development only; `false` in production |
-| `DB_MIGRATIONS_RUN` | `true` to run pending migrations on startup (production) |
-| `FRONTEND_URL` | Allowed browser origin(s) for CORS, comma-separated, no trailing slash. If unset, all origins are allowed (local development). |
+| `PORT` | Server port (default: 3000; automatically assigned by Render) |
+| `DB_HOST` | Local PostgreSQL host |
+| `DB_PORT` | Local PostgreSQL port |
+| `DB_USERNAME` | PostgreSQL username |
+| `DB_PASSWORD` | PostgreSQL password |
+| `DB_NAME` | PostgreSQL database name |
+| `DATABASE_URL` | Hosted database connection URL; overrides individual DB variables |
+| `DB_SSL` | Set to `true` for hosted databases requiring SSL, such as Neon |
+| `DB_SYNCHRONIZE` | Set to `true` for local development only; `false` in production |
+| `DB_MIGRATIONS_RUN` | Set to `true` to execute pending migrations at startup |
+| `FRONTEND_URL` | Allowed browser origin(s) for CORS, comma-separated, without trailing slashes |
 
 ### Frontend (`frontend/.env.local`)
 
 | Variable | Description |
 |---|---|
-| `NEXT_PUBLIC_API_URL` | Base URL of the backend API, e.g. `http://localhost:3000/api` |
+| `NEXT_PUBLIC_API_URL` | Backend API base URL |
 
-`.env` files are git-ignored; only the `.env.example` files with placeholder values are committed.
+Example:
 
-## API documentation
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+```
 
-Base URL: `https://doomsday-ready-api.onrender.com/api` (local: `http://localhost:3000/api`). All bodies are JSON.
+> **Security:** Environment files such as `.env` and `.env.local` are excluded through `.gitignore`. Only `.env.example` files containing placeholder values are committed to the repository.
+
+---
+
+## API Documentation
+
+**Base URL**
+
+Production:
+
+```text
+https://doomsday-ready-api.onrender.com/api
+```
+
+Local:
+
+```text
+http://localhost:3000/api
+```
+
+All request and response bodies use JSON.
+
+### API Endpoints
 
 | Method | Endpoint | Purpose |
 |---|---|---|
 | POST | `/movies` | Create a movie |
-| GET | `/movies` | List movies (with their prerequisites) |
-| PATCH | `/movies/:id` | Update a movie, including `watched` and `prerequisiteIds` |
-| GET | `/movies/:id/rewatch-order` | Rewatch order for a target movie |
+| GET | `/movies` | Retrieve all movies with prerequisites |
+| PATCH | `/movies/:id` | Update movie information, watched status, and prerequisites |
+| GET | `/movies/:id/rewatch-order` | Generate the prerequisite rewatch order |
 | POST | `/cinemas` | Create a cinema |
-| GET | `/cinemas` | List cinemas |
-| GET | `/cinemas/:id/booking?groupSize=6` | Booking quote |
+| GET | `/cinemas` | Retrieve all cinemas |
+| GET | `/cinemas/:id/booking?groupSize=6` | Calculate a booking quote |
 
-### Error format
+### Error Response Format
 
-Every error has the same shape:
+All errors follow a consistent JSON structure.
+
+Example:
 
 ```json
-{ "statusCode": 409, "error": "CIRCULAR_DEPENDENCY", "message": "This change would create a circular dependency between movies" }
+{
+  "statusCode": 409,
+  "error": "CIRCULAR_DEPENDENCY",
+  "message": "This change would create a circular dependency between movies"
+}
 ```
 
-| Status | `error` | When |
+### Error Status Codes
+
+| Status | Error | Description |
 |---|---|---|
-| 400 | `VALIDATION_ERROR` | Invalid body or query (`message` is an array of problems), duplicate bundle sizes |
-| 400 | `INVALID_PREREQUISITE` | A prerequisite id does not exist |
-| 404 | `MOVIE_NOT_FOUND`, `CINEMA_NOT_FOUND` | Unknown id |
-| 409 | `CIRCULAR_DEPENDENCY` | The change would create a dependency cycle (including a movie depending on itself) |
-| 409 | `DUPLICATE_TITLE`, `DUPLICATE_CINEMA_NAME` | Unique value already exists |
-| 500 | `INTERNAL_SERVER_ERROR` | Unexpected error (details are not exposed) |
+| 400 | `VALIDATION_ERROR` | Invalid request body or query parameters |
+| 400 | `INVALID_PREREQUISITE` | A prerequisite movie ID does not exist |
+| 404 | `MOVIE_NOT_FOUND` | Requested movie does not exist |
+| 404 | `CINEMA_NOT_FOUND` | Requested cinema does not exist |
+| 409 | `CIRCULAR_DEPENDENCY` | The requested change creates a dependency cycle |
+| 409 | `DUPLICATE_TITLE` | Movie title already exists |
+| 409 | `DUPLICATE_CINEMA_NAME` | Cinema name already exists |
+| 500 | `INTERNAL_SERVER_ERROR` | Unexpected server error; internal details are not exposed |
 
-### `POST /movies`
+For validation errors, the `message` field contains an array describing the validation problems.
 
-Request:
+### 1. Create Movie
+
+**Endpoint**
+
+```http
+POST /api/movies
+```
+
+**Request Body**
 
 ```json
 {
@@ -266,7 +517,9 @@ Request:
 }
 ```
 
-`prerequisiteIds` and `watched` are optional. Response `201`:
+`prerequisiteIds` and `watched` are optional.
+
+**Successful Response (201 Created)**
 
 ```json
 {
@@ -276,42 +529,125 @@ Request:
   "runtimeMinutes": 143,
   "watched": false,
   "prerequisites": [
-    { "id": 1, "title": "Iron Man", "releaseYear": 2008, "runtimeMinutes": 126, "watched": false },
-    { "id": 2, "title": "Captain America: The First Avenger", "releaseYear": 2011, "runtimeMinutes": 124, "watched": false }
+    {
+      "id": 1,
+      "title": "Iron Man",
+      "releaseYear": 2008,
+      "runtimeMinutes": 126,
+      "watched": false
+    },
+    {
+      "id": 2,
+      "title": "Captain America: The First Avenger",
+      "releaseYear": 2011,
+      "runtimeMinutes": 124,
+      "watched": false
+    }
   ]
 }
 ```
 
-### `PATCH /movies/:id`
+### 2. Update Movie
 
-All fields are optional. `prerequisiteIds` **replaces** the whole prerequisite list (`[]` removes all; omitting it leaves them unchanged).
+**Endpoint**
 
-```json
-{ "watched": true }
+```http
+PATCH /api/movies/:id
 ```
 
-```json
-{ "prerequisiteIds": [1, 2] }
-```
+All fields are optional.
 
-Making *Avengers: Endgame* (id 7) a prerequisite of *Iron Man* (id 1) fails:
+When `prerequisiteIds` is provided, it replaces the entire existing prerequisite list.
 
-```
-PATCH /api/movies/1   { "prerequisiteIds": [7] }
--> 409 { "statusCode": 409, "error": "CIRCULAR_DEPENDENCY", "message": "This change would create a circular dependency between movies" }
-```
+- Sending `[]` removes all prerequisites.
+- Omitting `prerequisiteIds` leaves the existing relationships unchanged.
 
-### `GET /movies/:id/rewatch-order`
-
-Example for *Captain America: Civil War* (id 4) when *Iron Man* is already watched:
+**Example: Mark a Movie as Watched**
 
 ```json
 {
-  "target": { "id": 4, "title": "Captain America: Civil War" },
+  "watched": true
+}
+```
+
+**Example: Replace Prerequisites**
+
+```json
+{
+  "prerequisiteIds": [1, 2]
+}
+```
+
+**Circular Dependency Example**
+
+Making *Avengers: Endgame* (ID 7) a prerequisite of *Iron Man* (ID 1) creates a circular dependency.
+
+```http
+PATCH /api/movies/1
+```
+
+Request body:
+
+```json
+{
+  "prerequisiteIds": [7]
+}
+```
+
+Response:
+
+```json
+{
+  "statusCode": 409,
+  "error": "CIRCULAR_DEPENDENCY",
+  "message": "This change would create a circular dependency between movies"
+}
+```
+
+The update is rejected before any changes are saved to the database.
+
+### 3. Generate Rewatch Order
+
+**Endpoint**
+
+```http
+GET /api/movies/:id/rewatch-order
+```
+
+Returns every transitive prerequisite of the target movie exactly once, in a valid order.
+
+**Example:**
+
+For *Captain America: Civil War* (ID 4), assuming *Iron Man* has already been watched:
+
+```json
+{
+  "target": {
+    "id": 4,
+    "title": "Captain America: Civil War"
+  },
   "order": [
-    { "id": 1, "title": "Iron Man", "releaseYear": 2008, "runtimeMinutes": 126, "watched": true },
-    { "id": 2, "title": "Captain America: The First Avenger", "releaseYear": 2011, "runtimeMinutes": 124, "watched": false },
-    { "id": 3, "title": "The Avengers", "releaseYear": 2012, "runtimeMinutes": 143, "watched": false }
+    {
+      "id": 1,
+      "title": "Iron Man",
+      "releaseYear": 2008,
+      "runtimeMinutes": 126,
+      "watched": true
+    },
+    {
+      "id": 2,
+      "title": "Captain America: The First Avenger",
+      "releaseYear": 2011,
+      "runtimeMinutes": 124,
+      "watched": false
+    },
+    {
+      "id": 3,
+      "title": "The Avengers",
+      "releaseYear": 2012,
+      "runtimeMinutes": 143,
+      "watched": false
+    }
   ],
   "totalPrerequisites": 3,
   "watchedCount": 1,
@@ -319,41 +655,89 @@ Example for *Captain America: Civil War* (id 4) when *Iron Man* is already watch
 }
 ```
 
-A movie without prerequisites (for example *Thor: Ragnarok*) returns `"order": []`, `"totalPrerequisites": 0`.
-
-### `POST /cinemas`
-
-```json
-{ "name": "Cinema B", "bundleSizes": [2, 5] }
-```
-
-Response `201`:
-
-```json
-{ "id": 2, "name": "Cinema B", "bundleSizes": [2, 5] }
-```
-
-### `GET /cinemas/:id/booking?groupSize=11`
+A movie without prerequisites, such as *Thor: Ragnarok*, returns:
 
 ```json
 {
-  "cinema": { "id": 2, "name": "Cinema B" },
+  "order": [],
+  "totalPrerequisites": 0
+}
+```
+
+### 4. Create Cinema
+
+**Endpoint**
+
+```http
+POST /api/cinemas
+```
+
+**Request Body**
+
+```json
+{
+  "name": "Cinema B",
+  "bundleSizes": [2, 5]
+}
+```
+
+**Successful Response (201 Created)**
+
+```json
+{
+  "id": 2,
+  "name": "Cinema B",
+  "bundleSizes": [2, 5]
+}
+```
+
+### 5. Calculate Booking Quote
+
+**Endpoint**
+
+```http
+GET /api/cinemas/:id/booking?groupSize=11
+```
+
+The booking algorithm calculates the minimum number of bundles required to accommodate the exact group size.
+
+**Example: Successful Booking Calculation**
+
+For a cinema with bundle sizes `[2, 5]` and a group of 11:
+
+```json
+{
+  "cinema": {
+    "id": 2,
+    "name": "Cinema B"
+  },
   "groupSize": 11,
   "bundleSizes": [2, 5],
   "possible": true,
   "totalBundles": 4,
   "bundles": [
-    { "size": 5, "quantity": 1 },
-    { "size": 2, "quantity": 3 }
+    {
+      "size": 5,
+      "quantity": 1
+    },
+    {
+      "size": 2,
+      "quantity": 3
+    }
   ]
 }
 ```
 
-When no exact combination exists (bundles 4 and 6, group of 7) the response is still `200`:
+**Example: Impossible Booking**
+
+For bundle sizes `[4, 6]` and a group of 7:
 
 ```json
 {
-  "cinema": { "id": 4, "name": "Cinema D" },
+  "cinema": {
+    "id": 4,
+    "name": "Cinema D"
+  },
   "groupSize": 7,
   "bundleSizes": [4, 6],
   "possible": false,
@@ -363,135 +747,541 @@ When no exact combination exists (bundles 4 and 6, group of 7) the response is s
 }
 ```
 
+An impossible booking returns HTTP `200 OK` because the request is valid; the requested group size simply cannot be formed using the available bundles.
+
+---
+
 ## Testing with Thunder Client
 
-The API was tested manually with the [Thunder Client](https://www.thunderclient.com/) VS Code extension. The exported collection is in [`docs/thunder-client-collection.json`](docs/thunder-client-collection.json).
+The API was tested manually using the [Thunder Client](https://www.thunderclient.com/) VS Code extension.
 
-1. In Thunder Client choose **Collections → Import** and select the file.
-2. Create an environment variable `baseUrl` = `http://localhost:3000/api` (or the live URL above).
-3. On an empty database run **Create Movie** requests 1 to 8 in order (ids become 1–8), then **Create Cinema A–D** (ids 1–4).
+The exported collection is available in:
 
-Cases covered by the collection:
+[`docs/thunder-client-collection.json`](docs/thunder-client-collection.json)
 
-| Area | Cases |
+### Importing the Collection
+
+1. Open Thunder Client in VS Code.
+2. Navigate to **Collections → Import**.
+3. Select `docs/thunder-client-collection.json`.
+4. Create an environment variable named `baseUrl`.
+5. Set its value to:
+
+```text
+http://localhost:3000/api
+```
+
+For production testing, use:
+
+```text
+https://doomsday-ready-api.onrender.com/api
+```
+
+6. On an empty database, execute the **Create Movie** requests (1–8) in order. The expected IDs will be 1–8.
+7. Execute the **Create Cinema A–D** requests. The expected IDs will be 1–4.
+
+### Test Coverage
+
+| Area | Test Cases |
 |---|---|
-| Rewatch order | Doomsday (all 7 prerequisites, valid order), Civil War (Iron Man and The First Avenger, then The Avengers), Thor: Ragnarok (empty list), target movie excluded, watched count and remaining runtime after marking a movie watched |
-| Circular dependency | Making a late movie a prerequisite of Iron Man (indirect cycle), movie as its own prerequisite (direct), both `409 CIRCULAR_DEPENDENCY` |
-| Movie validation | Duplicate title, runtime 301, non-existent prerequisite id, unknown movie id |
-| Booking | Bundles 1,3,4 for 6 → 2 bundles (3 × 2); 2,5 for 11 → 4 bundles; 6,9,20 for 44 → 4 bundles; 4,6 for 7 → Not Possible; single-bundle and exact-multiple groups |
-| Booking validation | `groupSize` 0 and 10001, unknown cinema id, duplicate bundle sizes, duplicate cinema name |
+| Rewatch Order | Doomsday (all 7 prerequisites in valid order), Civil War (Iron Man and The First Avenger, followed by The Avengers), Thor: Ragnarok (empty prerequisite list) |
+| Rewatch Order Validation | Target movie excluded, watched count, remaining runtime after marking a movie as watched |
+| Circular Dependency | Making a later movie a prerequisite of Iron Man (indirect cycle), movie as its own prerequisite (direct cycle) |
+| Circular Dependency Response | Both direct and indirect cycles return `409 CIRCULAR_DEPENDENCY` |
+| Movie Validation | Duplicate title, runtime of 301 minutes, non-existent prerequisite ID, unknown movie ID |
+| Booking | Bundles 1, 3, 4 for group size 6 → 2 bundles (3 × 2); bundles 2, 5 for group size 11 → 4 bundles; bundles 6, 9, 20 for group size 44 → 4 bundles |
+| Impossible Booking | Bundles 4 and 6 for group size 7 → Not Possible |
+| Booking Edge Cases | Single-bundle groups and exact-multiple group sizes |
+| Booking Validation | Group size 0 and 10001, unknown cinema ID, duplicate bundle sizes, duplicate cinema name |
 
-There is no automated test suite for the algorithms; testing was manual.
+There is no automated test suite for the algorithms. Verification was performed manually using Thunder Client and the live frontend.
 
-## Algorithms and design decisions
+---
 
-Both core algorithms are implemented in plain TypeScript, without any library that solves these problems.
+## Algorithms and Design Decisions
 
-### Algorithm research and verification
+Both core algorithms are implemented in plain TypeScript without using external libraries that directly solve these problems.
 
-Before settling on the rewatch-order approach, I studied and simulated both Breadth-First Search (BFS) and Depth-First Search (DFS) on paper for the prerequisite graph. I then discussed the options with Claude, and DFS with post-order traversal was recommended. After that I did a second paper simulation to verify the traversal order and to confirm that prerequisites always appear before the movies that depend on them. The TypeScript code of the algorithms was written by Claude (see the [AI usage disclosure](#ai-usage-disclosure)); I used the same paper-simulation approach to understand and verify the cycle-detection logic before it was integrated into the backend.
+### Algorithm Research and Verification
 
-### Rewatch order: Graph + DFS post-order (`backend/src/movies/algorithms/prerequisite-graph.ts`)
+Before selecting the rewatch-order algorithm, I independently studied and simulated both **Breadth-First Search (BFS)** and **Depth-First Search (DFS)** on paper using the movie prerequisite graph.
 
-Movies are the nodes of a directed graph; an edge goes from a movie to each of its direct prerequisites. The graph is held in memory as `Map<movieId, prerequisiteIds[]>`.
+After comparing the approaches, I discussed the options with Claude, which recommended DFS with post-order traversal.
 
-- A depth-first search starts at the target movie. For each movie it first visits all of its prerequisites and only **then** appends the movie itself to the result (post-order).
-- Therefore every prerequisite is added before any movie that depends on it, which is a valid topological order.
-- A `visited` set ensures each movie is processed once, even when it can be reached through several paths (for example *Iron Man* through *The Avengers* only).
-- The target is always appended last, so it is removed at the end.
-- Complexity: O(V + E) time, O(V) space.
+I then performed a second paper simulation to verify the traversal order and confirm that prerequisites always appear before the movies that depend on them.
 
-### Circular dependency detection: DFS with a "visiting" state (same file)
+The initial TypeScript implementation of the algorithms was generated with Claude. I studied the logic, performed manual dry runs, verified the cycle-detection approach, and integrated the implementation into the backend.
 
-Before a movie's prerequisites are changed, the new prerequisite list is applied to an in-memory copy of the graph and a DFS runs from the changed movie. Each node is `unvisited`, `visiting` (on the current path) or `done`. Reaching a node that is still `visiting` means the path came back to itself, i.e. there is a cycle. Any new cycle must pass through the changed movie, so starting there is enough. This catches direct (`A -> A`) and indirect (`A -> B -> C -> A`) cycles. If a cycle is found the request fails with `409 CIRCULAR_DEPENDENCY` **before** anything is written to the database.
+Further details about AI assistance are provided in the [AI Usage Disclosure](#ai-usage-disclosure).
 
-A newly created movie cannot be anyone's prerequisite yet, so creating a movie cannot form a cycle; invalid prerequisite ids are rejected with `400 INVALID_PREREQUISITE`.
+### 1. Rewatch Order: Graph + DFS Post-Order
 
-### Booking: Dynamic Programming, minimum coin change (`backend/src/cinemas/algorithms/min-bundles.ts`)
+**File:** `backend/src/movies/algorithms/prerequisite-graph.ts`
 
-Bundles are "coins" and the group size is the "amount".
+Movies are represented as nodes in a directed graph. An edge connects a movie to each of its direct prerequisites.
 
-- `minCount[x]` is the fewest bundles that sum to exactly `x` seats (`Infinity` if impossible); `minCount[0] = 0`.
-- For every `x` from 1 to the group size, try each bundle size `s <= x` and keep the best value of `minCount[x - s] + 1`, remembering the bundle used in `lastUsed[x]`.
-- If `minCount[groupSize]` is still `Infinity`, the result is "Not Possible". Otherwise, walk back from `groupSize` using `lastUsed` and count how many times each size was used.
-- Complexity: O(groupSize × bundleCount) time (at most 10,000 × 10), O(groupSize) space.
+The graph is stored in memory using:
 
-### Other decisions
+```typescript
+Map<movieId, prerequisiteIds[]>
+```
 
-- **Separate `cinema_bundles` table** (instead of an array column) so uniqueness and the size range are enforced by database constraints and the model is easy to show in the ER diagram.
-- **Self-referencing many-to-many** (`movie_prerequisites`) for prerequisites.
-- **Consistent error shape** through a global exception filter, plus a safety net for database unique-constraint violations.
-- **Validation at the edge** with DTOs (`whitelist` and `forbidNonWhitelisted`), so unknown fields are rejected.
-- **No authentication, payments or delete endpoints:** not required by the assessment, so not added.
+**How it works:**
 
-## Assumptions and limitations
+1. DFS starts from the selected target movie.
+2. It recursively visits all prerequisites of the current movie.
+3. After processing its prerequisites, the current movie is appended to the result (post-order traversal).
+4. A `visited` set ensures that each movie is processed only once, even if it is reachable through multiple paths.
+5. The target movie is appended after all its prerequisites and is then excluded from the final response.
 
-- Where the assessment was unclear I made the choices below.
-  - One movie or cinema is created per `POST` request.
-  - Prerequisites are sent as `prerequisiteIds: number[]` (movie ids), and `PATCH` replaces the whole list.
-  - Release year must be between 1888 and 2100 (validated separately from the 1–300 minute runtime rule).
-  - Titles and cinema names are trimmed and compared exactly (case-sensitive).
-  - A cinema with duplicate bundle sizes is rejected with `400` (not silently de-duplicated).
-  - An impossible booking returns HTTP `200` with `"possible": false` and `"message": "Not Possible"`, because it is a valid answer rather than a client error.
-- The sample movie runtimes (and the 150-minute runtime for *Avengers: Doomsday*) are illustrative values; the sample prerequisite links are the assessment's sample data, not an official watch guide.
-- There is no endpoint to delete movies or cinemas, or to edit a cinema; cinemas are created through the API only (the frontend has no cinema form).
-- Free-tier hosting: the backend sleeps when idle (about one minute to wake up) and the Neon database suspends when idle.
-- Rewatch order and cycle checks load all movies into memory; this is fine at this scale but would need a different approach for very large catalogues.
-- No automated test suite; verification was manual (Thunder Client and the live frontend).
-- Docker Compose (optional bonus in the assessment) was intentionally not used.
+This ensures that every prerequisite appears before the movie that depends on it.
 
-## Problems faced and how they were solved
+**Time Complexity:** `O(V + E)`
 
-1. **No `.gitignore` after scaffolding.** The Nest project was generated with `--skip-git` (the Git repository lives in the project root, not in `backend/`), so no `.gitignore` existed and `.env` could have been committed by accident.
-   *Solution:* created one `.gitignore` in the repository root (ignores `node_modules`, build output and `.env*`, but keeps `.env.example`) and checked it with `git check-ignore -v` and `git status -u` before the first commit.
+**Space Complexity:** `O(V)`
 
-2. **ESM project scaffold.** The generated NestJS project uses ES modules (and Vitest). In ESM, relative imports need a `.js` extension even in `.ts` files, and TypeORM entities that import each other (`Cinema` and `CinemaBundle`) can fail at startup with "before initialization" errors.
-   *Solution:* every relative import ends in `.js`, and the two-way relation is typed with TypeORM's `Relation<>` wrapper to avoid the circular-import problem.
+Where:
+- `V` = number of movie nodes.
+- `E` = number of prerequisite relationships.
 
-3. **Self-dependency check on the join table.** Blocking `A -> A` in the database needs a `CHECK` constraint on the auto-generated `movie_prerequisites` table, which cannot be declared with a TypeORM decorator.
-   *Solution:* the constraint is written as SQL in the production migration. It is only a second line of defence; the real protection is the DFS cycle check that runs before saving.
+### 2. Circular Dependency Detection: DFS with Visiting States
 
-4. **Production schema management.** `synchronize: true` is unsafe in production, and Render's free web services have no shell to run migration commands by hand.
-   *Solution:* a hand-written migration (`backend/src/migrations`) that runs automatically at startup when `DB_MIGRATIONS_RUN=true`, with `synchronize` turned off.
+**File:** `backend/src/movies/algorithms/prerequisite-graph.ts`
 
-5. **Migration test showed no tables at first.** When I tested the migration on a fresh local database, pgAdmin showed no tables even though the server had started.
-   *Solution:* stopped and restarted the server so that it picked up the changed `.env` (a running `nest start --watch` does not reload `.env`) and refreshed pgAdmin. After that the four tables and the `migrations` table were there. The migration files are found through a path pattern relative to the compiled `database.module.js`, and the same setup created the tables on the Neon database at the first deploy.
+Circular dependencies are detected using DFS with three possible node states:
 
-6. **Choosing free hosting.** According to Render's documentation (checked in November 2026), its free PostgreSQL database expires after 30 days, and free web services sleep when idle and have no shell.
-   *Solution:* the database is on Neon (the free plan has no expiry), the backend on Render, the frontend on Vercel. The sleep behaviour could not be removed, so it is documented at the top of this README.
+- `unvisited`: The node has not been processed.
+- `visiting`: The node is currently being explored on the DFS path.
+- `done`: The node and its prerequisites have been completely processed.
 
-7. **Render form defaults.** The new web service form pre-selected a paid instance type and had empty build and start commands.
-   *Solution:* switched to the Free instance, set the build command to `npm install --include=dev && npm run build` (the Nest CLI is a dev dependency) and the start command to `npm run start:prod`, and added the environment variables.
+**How it works:**
 
-8. **Port clash and cross-origin calls.** Backend and frontend both default to port 3000 locally, and the deployed frontend (Vercel) calls the API on another domain (Render).
-   *Solution:* the frontend runs on port 3001 locally; the backend enables CORS and, in production, only allows the origin set in `FRONTEND_URL`. The frontend API URL comes from `NEXT_PUBLIC_API_URL`, which Next.js bakes in at build time, so it is set before deploying.
+1. Before updating prerequisites, the new prerequisite relationships are applied to an in-memory copy of the graph.
+2. DFS starts from the movie whose prerequisites are being changed.
+3. If DFS encounters a node that is still in the `visiting` state, a cycle has been detected.
+4. The request is rejected with `409 CIRCULAR_DEPENDENCY` before any database changes are saved.
 
-9. **Dependency audit warnings (not fixed).** `npm install` in the backend reported 5 vulnerabilities. I did not run `npm audit fix --force` because it can apply breaking upgrades to the framework packages; these warnings remain to be reviewed.
+This detects both:
+
+**Direct cycle:**
+
+```text
+A → A
+```
+
+**Indirect cycle:**
+
+```text
+A → B → C → A
+```
+
+Starting DFS from the changed movie is sufficient because any newly introduced cycle must involve that movie.
+
+A newly created movie cannot already be a prerequisite of another movie. Therefore, creating a movie cannot introduce a dependency cycle. Non-existent prerequisite IDs are rejected separately with `400 INVALID_PREREQUISITE`.
+
+**Time Complexity:** `O(V + E)`
+
+**Space Complexity:** `O(V)`
+
+### 3. Booking: Dynamic Programming (Minimum Coin Change)
+
+**File:** `backend/src/cinemas/algorithms/min-bundles.ts`
+
+The booking problem is treated as a variation of the classic minimum coin change problem.
+
+- Each available ticket bundle size represents a coin.
+- The requested group size represents the target amount.
+- The objective is to find the minimum number of bundles that add up to the exact group size.
+
+**Dynamic Programming Approach**
+
+Two arrays are maintained:
+
+- `minCount[x]`: Minimum number of bundles required to form exactly `x` seats. It is `Infinity` if the amount cannot be formed.
+- `lastUsed[x]`: Stores the bundle size used to reach the optimal solution for `x`.
+
+Initialization:
+
+```text
+minCount[0] = 0
+```
+
+For every amount from 1 to the requested group size:
+
+1. Iterate through each available bundle size `s`.
+2. Consider only bundle sizes where `s <= x`.
+3. Calculate `minCount[x - s] + 1`.
+4. Keep the minimum value.
+5. Store the selected bundle size in `lastUsed[x]`.
+
+**Reconstructing the Result**
+
+If `minCount[groupSize]` remains `Infinity`, no exact combination exists, and the result is `"Not Possible"`.
+
+Otherwise, the algorithm starts from the requested group size and repeatedly follows `lastUsed` to reconstruct the selected bundle combination.
+
+The quantities of each bundle size are then calculated.
+
+**Time Complexity:** `O(G × B)`
+
+**Space Complexity:** `O(G)`
+
+Where:
+- `G` = requested group size (maximum 10,000).
+- `B` = number of available bundle sizes (maximum 10).
+
+### 4. Other Design Decisions
+
+- **Separate `cinema_bundles` table:** Instead of storing bundle sizes in an array column, a separate table allows database-level uniqueness and range constraints.
+- **Self-referencing Many-to-Many Relationship:** The `movie_prerequisites` table represents prerequisite relationships between movies.
+- **Consistent Error Responses:** A global exception filter ensures that errors follow a consistent JSON structure, with additional handling for database unique-constraint violations.
+- **Validation at the API Boundary:** DTOs with `whitelist` and `forbidNonWhitelisted` prevent unknown or unsupported request fields.
+- **No Authentication, Payments, or Delete Endpoints:** These features were not required by the assessment, so they were intentionally excluded.
+
+---
+
+## Assumptions and Limitations
+
+Where the assessment requirements were unclear, the following decisions were made:
+
+### Assumptions
+
+- One movie or cinema is created per `POST` request.
+- Movie prerequisites are provided as `prerequisiteIds: number[]`.
+- Updating `prerequisiteIds` replaces the entire existing prerequisite list.
+- Release years must be between 1888 and 2100.
+- Movie runtimes must be between 1 and 300 minutes.
+- Movie titles and cinema names are trimmed and compared exactly (case-sensitive).
+- Duplicate bundle sizes within a cinema are rejected with `400` rather than silently de-duplicated.
+- An impossible booking returns HTTP `200` with `"possible": false` and `"message": "Not Possible"` because it is a valid request with no possible exact combination.
+
+### Limitations
+
+- Sample movie runtimes and the 150-minute runtime used for *Avengers: Doomsday* are illustrative values, not verified official runtimes.
+- The sample prerequisite relationships are assessment data, not an official MCU watch guide.
+- There are no endpoints to delete movies or cinemas.
+- Cinemas cannot be edited through the application; they are created through the API only.
+- Rewatch-order and cycle-detection operations load all movies into memory. This is appropriate for the current application scale but would need reconsideration for very large movie catalogues.
+- No automated test suite is included. Verification was performed manually using Thunder Client and the live frontend.
+- Docker Compose, an optional bonus feature in the assessment, was intentionally not implemented.
+- The free-tier hosting setup can introduce cold-start delays when the application has been inactive.
+
+---
+
+## Problems Faced and Solutions
+
+### 1. Missing `.gitignore` After Scaffolding
+
+**Problem:**
+
+The NestJS project was generated using `--skip-git`. Since the Git repository was initialized at the project root rather than inside `backend/`, there was initially no `.gitignore` file.
+
+This could have caused sensitive `.env` files to be committed accidentally.
+
+**Solution:**
+
+Created a single `.gitignore` file in the repository root to exclude:
+
+- `node_modules`
+- Build output
+- Environment files (`.env*`)
+
+The `.env.example` files were explicitly kept trackable.
+
+Verified the configuration using:
+
+```bash
+git check-ignore -v
+git status -u
+```
+
+### 2. ESM Project Scaffold
+
+**Problem:**
+
+The generated NestJS project uses ES modules and Vitest. Relative imports require `.js` extensions even when the source files are written in TypeScript.
+
+Additionally, TypeORM entities with bidirectional relationships, such as `Cinema` and `CinemaBundle`, could encounter circular-import initialization errors.
+
+**Solution:**
+
+- Added `.js` extensions to relative imports.
+- Used TypeORM's `Relation<>` wrapper for the bidirectional entity relationships to avoid circular-import problems.
+
+### 3. Self-Dependency Check on the Join Table
+
+**Problem:**
+
+Preventing a movie from being its own prerequisite requires a database `CHECK` constraint on the generated `movie_prerequisites` join table.
+
+This constraint cannot be declared through a standard TypeORM decorator.
+
+**Solution:**
+
+Implemented the constraint using raw SQL in the production migration:
+
+```sql
+CHECK (movie_id <> prerequisite_id)
+```
+
+The application also performs DFS-based cycle detection before saving changes, providing protection at the application level.
+
+### 4. Production Schema Management
+
+**Problem:**
+
+Using `synchronize: true` in production is unsafe because automatic entity synchronization can introduce unexpected database schema changes.
+
+Additionally, Render's free web services do not provide a shell for manually executing migration commands.
+
+**Solution:**
+
+Implemented a hand-written TypeORM migration that runs automatically during application startup when:
+
+```env
+DB_MIGRATIONS_RUN=true
+```
+
+Production synchronization remains disabled:
+
+```env
+DB_SYNCHRONIZE=false
+```
+
+### 5. Migration Test Initially Showed No Tables
+
+**Problem:**
+
+During local migration testing, pgAdmin initially showed no database tables even though the backend server had started.
+
+**Solution:**
+
+Stopped and restarted the server so that it could load the updated `.env` configuration. A running `nest start --watch` process does not automatically reload environment variables.
+
+After restarting the server and refreshing pgAdmin, the four application tables and the `migrations` table appeared.
+
+The migration file path pattern is configured relative to the compiled `database.module.js`, and the same setup successfully created the tables in the Neon database during the first deployment.
+
+### 6. Choosing Free Hosting Providers
+
+**Problem:**
+
+The application needed free hosting for the frontend, backend, and PostgreSQL database.
+
+According to the Render documentation checked in November 2026, its free PostgreSQL databases expire after 30 days, while free web services spin down when inactive.
+
+**Solution:**
+
+Selected three separate services:
+
+- Neon for PostgreSQL.
+- Render for the NestJS backend.
+- Vercel for the Next.js frontend.
+
+The backend's cold-start behaviour could not be eliminated on the free tier, so it is documented at the beginning of this README.
+
+### 7. Render Form Defaults
+
+**Problem:**
+
+The Render web service creation form initially selected a paid instance type and did not provide the required build and start commands.
+
+**Solution:**
+
+- Selected the Free instance.
+- Configured the build command:
+
+```bash
+npm install --include=dev && npm run build
+```
+
+- Configured the start command:
+
+```bash
+npm run start:prod
+```
+
+- Added the required environment variables.
+
+Including development dependencies during the build ensures that the NestJS CLI is available when compiling the backend.
+
+### 8. Port Conflict and Cross-Origin Requests
+
+**Problem:**
+
+Both the frontend and backend defaulted to port 3000 during local development.
+
+Additionally, the deployed frontend on Vercel communicates with the backend hosted on a separate Render domain.
+
+**Solution:**
+
+- Configured the frontend to run on port 3001 locally.
+- Enabled CORS in the backend.
+- Restricted production browser origins using the `FRONTEND_URL` environment variable.
+- Configured `NEXT_PUBLIC_API_URL` for the frontend API client.
+
+Since Next.js embeds `NEXT_PUBLIC_API_URL` during the build process, the correct environment variable must be configured before deployment.
+
+### 9. Dependency Audit Warnings
+
+**Problem:**
+
+Running `npm install` in the backend reported five dependency vulnerabilities.
+
+**Solution:**
+
+I intentionally avoided running:
+
+```bash
+npm audit fix --force
+```
+
+because force upgrades can introduce breaking changes to framework dependencies.
+
+These warnings remain to be reviewed and addressed in a future maintenance update.
+
+---
 
 ## Deployment
 
-| Part | Service | Notes |
-|---|---|---|
-| Database | Neon (PostgreSQL, free tier) | Singapore region, connection through `DATABASE_URL` with SSL |
-| Backend | Render (free web service) | Root directory `backend`, build `npm install --include=dev && npm run build`, start `npm run start:prod`. Environment: `DATABASE_URL`, `DB_SSL=true`, `DB_SYNCHRONIZE=false`, `DB_MIGRATIONS_RUN=true`, `NODE_VERSION`, `FRONTEND_URL` |
-| Frontend | Vercel (Hobby) | Root directory `frontend`, environment: `NEXT_PUBLIC_API_URL` |
+The application is deployed using three hosting providers.
 
-On first start the backend runs the migration, which creates all tables.
+| Component | Hosting Provider | Configuration |
+|---|---|---|
+| Database | Neon (PostgreSQL, Free Tier) | Singapore region, `DATABASE_URL`, SSL enabled |
+| Backend | Render (Free Web Service) | Root directory: `backend` |
+| Frontend | Vercel (Hobby) | Root directory: `frontend` |
+
+### Backend Deployment (Render)
+
+**Root Directory:**
+
+```text
+backend
+```
+
+**Build Command:**
+
+```bash
+npm install --include=dev && npm run build
+```
+
+**Start Command:**
+
+```bash
+npm run start:prod
+```
+
+**Environment Variables:**
+
+```env
+DATABASE_URL=your_database_connection_url
+DB_SSL=true
+DB_SYNCHRONIZE=false
+DB_MIGRATIONS_RUN=true
+NODE_VERSION=24
+FRONTEND_URL=https://doomsday-ready-theta.vercel.app
+```
+
+The database migration runs automatically when the backend starts.
+
+### Database Deployment (Neon)
+
+- PostgreSQL database hosted on Neon's free tier.
+- Singapore region.
+- Connection configured through `DATABASE_URL`.
+- SSL enabled using `DB_SSL=true`.
+
+### Frontend Deployment (Vercel)
+
+**Root Directory:**
+
+```text
+frontend
+```
+
+**Environment Variable:**
+
+```env
+NEXT_PUBLIC_API_URL=https://doomsday-ready-api.onrender.com/api
+```
+
+The frontend communicates with the deployed backend through the configured REST API base URL.
+
+---
 
 ## Screenshots
 
-| Movies | Rewatch Plan | Booking |
-|---|---|---|
-| ![Movies view](docs/screenshots/movies.png) | ![Rewatch plan view](docs/screenshots/rewatch-plan.png) | ![Booking view](docs/screenshots/booking.png) |
+### Movies
 
-## AI usage disclosure
+![Movies View](docs/screenshots/movies.png)
 
-I used **Claude (Anthropic)** as a coding assistant and tutor throughout this project, and the work is **not** entirely written independently.
+### Rewatch Plan
 
-- **Planning and design:** Claude helped analyse the requirements, propose the architecture, the database schema and the choice of algorithms; I made the decisions between the options it presented (for example the separate `cinema_bundles` table, migrations for production, and the hosting providers).
-- **Code:** Claude wrote the first version of the backend (NestJS modules, entities, DTOs, services and controllers), including the two core algorithms (rewatch order with cycle detection, and minimum bundle calculation), the production migration, and the frontend (Next.js pages and API client). I created the files in my own project, ran the code, and fixed or adjusted things as I went.
-- **Learning:** Claude explained the algorithms (graph, DFS, topological ordering, dynamic programming) with dry runs on sample input.
-- **Testing and deployment:** I ran and tested the API manually with Thunder Client, tested the frontend, and performed the deployments on Neon, Render and Vercel, following step-by-step instructions from Claude.
-- **README:** Claude drafted this document; I reviewed it against the running application.
+![Rewatch Plan View](docs/screenshots/rewatch-plan.png)
 
-No external library is used to solve the rewatch-order or booking problems.
+### Booking
+
+![Booking View](docs/screenshots/booking.png)
+
+---
+
+## AI Usage Disclosure
+
+I used **Claude (Anthropic)** as a coding assistant and tutor throughout this project. The project was not written entirely independently.
+
+The following describes how AI assistance was used:
+
+### 1. Planning and Design
+
+Claude helped analyse the assessment requirements and proposed the application architecture, database schema, and possible algorithmic approaches.
+
+I made the final decisions between the proposed options, including:
+
+- Using a separate `cinema_bundles` table.
+- Implementing database migrations for production.
+- Selecting the hosting providers.
+- Choosing the algorithms for the two core problems.
+
+### 2. Code Generation
+
+Claude generated the initial versions of several application components, including:
+
+- NestJS modules, entities, DTOs, services, and controllers.
+- Rewatch-order and circular-dependency detection algorithms.
+- Minimum-bundle dynamic programming algorithm.
+- Production database migration.
+- Next.js frontend pages and API client.
+
+I created the files in my project, ran the application, reviewed the generated code, and made fixes and adjustments during implementation.
+
+### 3. Learning and Algorithm Verification
+
+Claude explained the core concepts behind the algorithms, including:
+
+- Graph representation.
+- Breadth-First Search (BFS).
+- Depth-First Search (DFS).
+- Topological ordering.
+- Circular dependency detection.
+- Dynamic programming.
+
+Before choosing the rewatch-order algorithm, I independently simulated BFS and DFS on paper. After discussing the approaches with Claude, I selected DFS with post-order traversal and performed another paper simulation to verify the traversal order.
+
+I also used manual dry runs to understand and verify the cycle-detection and booking logic.
+
+### 4. Testing and Deployment
+
+I performed manual API testing using Thunder Client and tested the frontend through the browser.
+
+I also carried out the deployments on Neon, Render, and Vercel, following step-by-step guidance from Claude.
+
+### 5. Documentation
+
+Claude drafted the initial version of this README. I reviewed the documentation against the implemented application, its API behaviour, database structure, and deployment configuration.
+
+**The core rewatch-order and booking algorithms do not rely on external libraries that solve these problems.**
+
+---
+
+**Built with NestJS, Next.js, TypeScript, and PostgreSQL.**
